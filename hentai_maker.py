@@ -6,6 +6,8 @@
 
 import os, requests
 from colorama import Fore, Style
+# from lxml.html import fromstring
+# from bs4 import BeautifulSoup
 
 #############EDIT ME#############
 operative_system = "win"        #  << Put here win or lin
@@ -39,15 +41,22 @@ except KeyboardInterrupt:
     print()
     exit(1)
 
-if "/" not in URL.strip():
+if URL[-1] == "/":
+    URL = URL[:-1]
+
+if "/" not in URL:
     print(" %s%s[!] Error. Invalid URL input, exiting...%s" % (Style.BRIGHT, Fore.RED, Style.RESET_ALL))
     print()
     exit(1)
+elif ".jpg" in URL.split("/")[-1]:
+    URL = "/".join(URL.split("/")[0:-1]) + "/"
+elif ".jpg" not in URL.split("/")[-1]:
+    URL = URL + "/"
 
 try:
     number = 0
     if operative_system == "win":
-        os.system("rmdir/q/s u_temp")
+        os.system("if exist \"u_temp\" rmdir/q/s u_temp")
         os.system("if not exist \"u_temp\" mkdir u_temp")
     elif operative_system == "lin":
         os.system("rm -r u_temp")
@@ -62,10 +71,10 @@ try:
         THIS_IMG = "https://dynasty-scans.com" + URL + number + ".jpg"
         try:
             r = requests.get(THIS_IMG, allow_redirects=True)
-            if "doesn't exist" in r.text:
+            if r.headers["content-type"] not in "image/jpeg":
                 print()
                 print(" %s%s[+]%s All done! Exiting...%s" % (Style.BRIGHT, Fore.GREEN, Fore.WHITE, Style.RESET_ALL))
-                print()
+                input(" Enter...")
                 exit(1)
             os.system("echo.> u_temp/" + number + ".jpg")
             PATH = "u_temp/" + number + ".jpg"
